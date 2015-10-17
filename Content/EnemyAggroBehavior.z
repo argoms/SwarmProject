@@ -1,0 +1,120 @@
+/*
+    EnemyAggroBehavior
+    @James/Argoms
+    
+    Behavior that makes enemies alerted when swarms come into their line of sight
+*/
+class EnemyAggroBehavior : ZilchComponent
+{
+    [Property]
+    var CalmdownTimer:Real = 1; //time it takes to go from alert level 1 to 0
+    
+    [Property]
+    var ViewDistance:Real = 2; //max distance that the enemy can spot players
+    
+    [Property]
+    var ResponseToSpotting:Integer = 0; //number coded responses to spotting an enemy
+    /*
+        potential responses currently coded:
+        0: nothing
+        1: basic shooting, using a child cog called "Gun"
+    */
+    
+    var AlertCounter:Real = 0;
+    
+    var Alert:Real = 0;
+    
+    var Target:Cog = null;
+    
+    var Gun:Cog = null;
+    /*
+        on alert levels:
+        alert 0 = fine
+        alert 1 = suspicious
+        alert 2 = can actively see swarm
+    */
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        if(this.Owner.FindChildByName("Gun") != null) //checks if there is a gun
+        {
+            this.Gun = this.Owner.FindChildByName("Gun");
+        }
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        this.CheckSight();
+        
+        if(this.Alert == 2) 
+        {
+            if(this.Owner.EnemyPatrolBehavior != null) //disables patrolling if that's part of the enemy
+            {
+                this.Owner.EnemyPatrolBehavior.Enabled = false;
+                this.Owner.RigidBody.Velocity = Real3(0, 0, 0);
+            }
+        } else if(this.AlertCounter > 0) //going back to normal behavior:
+        {
+            this.AlertCounter -= event.Dt;
+            if(this.Alert == 1) //disables shooting if suspicious and not alert
+            {
+                if(this.Gun != null)
+                {
+                    this.Gun.EnemyGunBehavior.Active = false;
+                }
+            }
+            if(this.AlertCounter <= 0)
+            {
+                this.Alert = 0;
+                if(this.Owner.EnemyPatrolBehavior != null) //re-enables patrolling if that's part of the enemy
+                {
+                    this.Owner.EnemyPatrolBehavior.Enabled = true;
+                }
+            }
+        }
+        
+    }
+    
+    function CheckSight() //checks if a swarm is in the line of sight and within range
+    {
+        var ray:Ray = Ray();
+
+        var thisPosition:Real3 = this.Owner.Transform.Translation;
+        var rayDirection:Real3 = this.Owner.Orientation.WorldForward;
+
+        ray.Start = thisPosition;
+        ray.Direction = rayDirection;
+
+        var castResult:CastResult = this.Space.PhysicsSpace.CastRayFirst(ray);
+        var hit:Cog = castResult.ObjectHit; 
+        //distance to target, squared to avoid sqrt usage later:
+        var targetDistance:Real = Math.DistanceSq(this.Owner.Transform.Translation, hit.Transform.Translation); 
+        
+        if(hit.Name == "SwarmObject" && (targetDistance < this.ViewDistance * this.ViewDistance))
+        {
+            //behavior if a swarm is spotted
+            this.Alert = 2; //go to high alert
+            this.AlertCounter = this.CalmdownTimer;
+            this.Target = hit; //set target to current swarm
+            this.RespondToSwarm(hit);
+        } else {
+            if(this.Alert == 2)
+            {
+                this.Alert = 1; //goes into suspicious mode if swarm is no longer visible
+            }
+        }
+    }
+    
+    function RespondToSwarm(target:Cog) //reaction to when the swarm is spotted
+    {
+        if(this.ResponseToSpotting == 1)
+        {
+            if(this.Target != null) //only works if the target still exists
+            {
+                this.Gun.EnemyGunBehavior.Target = target;
+                this.Gun.EnemyGunBehavior.Active = true;
+            }
+        }
+    }
+}

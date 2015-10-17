@@ -1,0 +1,48 @@
+/*
+    EnemyGunBehavior
+    @James/Argoms
+    
+    Note that the object this is attached to must be a child of an enemy and named "Gun".
+*/
+class EnemyGunBehavior : ZilchComponent
+{
+    [Property]
+    var FireRate:Real; //delay in seconds in between each shot
+    
+    [Property]
+    var ProjectileType:Archetype = Archetype.EnemyProjectile;
+    
+    var FireRateCounter:Real = 0;
+    var Active:Boolean;
+    var Target:Cog;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if(this.Active)
+        {
+            this.FireRateCounter -= event.Dt;
+            if(this.FireRateCounter <= 0)
+            {
+                this.FireRateCounter = this.FireRate;
+                if(this.Target != null)
+                {
+                    this.ShootAtTarget();
+                }
+            }
+            
+            
+        }
+    }
+    
+    function ShootAtTarget()
+    {
+        this.Owner.Parent.Orientation.LookAtPoint(this.Target.Transform.Translation);
+        var projectile:Cog = this.Owner.Parent.Space.CreateAtPosition(this.ProjectileType, this.Owner.Parent.Transform.Translation);
+        projectile.RigidBody.Velocity = 5*this.Owner.Parent.Orientation.WorldForward;
+    }
+}

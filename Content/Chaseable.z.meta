@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "Chaseable",
+		uint64 ResourceId = 56468899cc07d055,
+	},
+},

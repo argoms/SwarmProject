@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "ConsumableObjectScript",
+		uint64 ResourceId = 5646c16450babd0d,
+	},
+},

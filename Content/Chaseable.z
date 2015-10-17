@@ -1,0 +1,9 @@
+/*
+    Chaseable
+    @James/Argoms
+    
+    Used to check if a cog will have the swarm latch onto it or not, since I don't think I can add variables directly to cogs.
+*/
+class Chaseable : ZilchComponent
+{
+}

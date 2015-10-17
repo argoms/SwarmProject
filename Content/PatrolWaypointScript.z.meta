@@ -1,0 +1,8 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "PatrolWaypointScript",
+		uint64 ResourceId = 564681a5a7876195,
+	},
+},

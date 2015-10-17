@@ -1,0 +1,32 @@
+/*
+    ConsumableObjectScript
+    @James/Argoms
+    
+    Attached to objects that can be consumed by the swarm.
+        
+*/
+class ConsumableObjectScript : ZilchComponent
+{
+    [Property] //lifetime in seconds of the object once the swarm starts touching it
+    var Life:Real = 2;
+    
+    [Property] //amount of nanobots created by consuming the object
+    var SwarmCreated:Real = 0; //note that this should be in the hundreds-thousands range to have a noticeable effect, a 1 unit wide swarm has 256 nanobots
+    
+    function Initialize(init : CogInitializer)
+    {
+        //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+    
+    function TakeDamage(swarmObject:SwarmObjectScript, dt:Real)
+    {
+        this.Life -= dt;
+        
+        if(this.Life < 0)
+        {
+            swarmObject.Size += this.SwarmCreated/256;
+            swarmObject.SwarmCount += this.SwarmCreated as Integer;
+            this.Owner.Destroy();
+        }
+    }
+}

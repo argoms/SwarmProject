@@ -1,0 +1,7 @@
+ContentLibrary = 
+{
+	string Name = "SkitterProject",
+	uint64 LibraryId = 56323d9b56210f95,
+	string SourceControlType = "",
+	bool ReadOnly = false,
+},

@@ -1,0 +1,164 @@
+/*
+    SwarmControllerScript
+    @James/Argoms
+    
+    Central controller for swarm objects, has to be attached to levelsettings to function properly. Handles player input for swarms.
+*/
+class SwarmControllerScript : ZilchComponent
+{
+    [Property]
+    var SwarmStartingSize:Real = 5; //size of swarm created on start of level
+    
+    [Property]
+    var CameraHeight:Real = 4; //z level of the camera, default 4
+    
+    var MainSwarm:Cog = null; //swarm that the player has control over
+    
+    var SwarmList:Array[Cog] = new Array[Cog](); //list of all swarm objects currently existing
+    
+    var MoveSpeed:Integer = 150; //main swarm's move speed, measured in force, not linearly scaling to actual speed
+    var Decel:Integer = 100; //how fast main swarm decelerates, affects effective moving speed
+    
+    var SwarmsCreated:Integer = 0; //total number of swarms created
+    
+    var Camera:Cog = null; //camera object
+    
+    
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this.Space, Events.LeftMouseDown, this.OnLeftMouseDown);
+        Zero.Connect(this.Space, Events.RightMouseDown, this.OnRightMouseDown);
+        
+        //set up initial swarm object:
+        this.MainSwarm = this.Space.CreateAtPosition(Archetype.SwarmObject, Real3(0,0,0));
+        this.MainSwarm.SwarmObjectScript.IsMain = true;
+        this.MainSwarm.SwarmObjectScript.Age = 0;
+        this.MainSwarm.SwarmObjectScript.CanCollide = true;
+        this.SwarmList.Add(this.MainSwarm);
+        
+        this.MainSwarm.SwarmObjectScript.Size = this.SwarmStartingSize; //initial swarm size is currently 10 for tihs demo
+        this.MainSwarm.SwarmObjectScript.SwarmCount = (this.SwarmStartingSize*256) as Integer;
+        
+        //set up the camera:
+        this.Camera = this.Space.CreateAtPosition(Archetype.CameraObject, Real3(0, 0, 0));
+        this.LevelSettings.CameraViewport.Camera = this.Camera;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if(this.MainSwarm == null)
+        {
+            this.MainSwarm = this.SwarmList[0];
+            this.MainSwarm.SwarmObjectScript.ChaseTarget = false;
+        }
+        
+        this.UpdateMainSwarmMovement(event.Dt);
+        this.Camera.GameCameraBehavior.TargetPoint = this.MainSwarm.Transform.Translation + Real3 (0, 0, this.CameraHeight); //keeps camera on main swarm
+        
+    }
+    
+    function OnRightMouseDown(event : ViewportMouseEvent) //right mouse swaps the main swarm to the selected swarm
+    {
+        //gets mouse position:
+        var cursor:Real2 = Zero.Mouse.ScreenPosition;
+        var worldCursor:Real3 = this.LevelSettings.CameraViewport.ScreenToWorldZPlane(cursor, 0);
+        var currentSwarmObject:Cog = null;
+        var distToCurrent:Real = 0;
+        
+        //loops through every instance of swarm, I'm not sure if this is the best way to do this but...
+        for(var i:Integer = 0; i < this.SwarmList.Count; i+= 1)
+        {
+            //get information about current object in list:
+            currentSwarmObject = this.SwarmList[i];
+            distToCurrent = this.Vec2Magnitude(worldCursor - currentSwarmObject.Transform.Translation);
+            
+            //if the right mouse click is on the target:
+            if(distToCurrent < (Math.Pow(currentSwarmObject.SwarmObjectScript.Size, 2) * 0.16) + 0.1)
+            {
+                if(currentSwarmObject.SwarmObjectScript.IsMain == false)
+                {
+                    //swaps control of swarm
+                    currentSwarmObject.SwarmObjectScript.IsMain = true;
+                    this.MainSwarm.SwarmObjectScript.IsMain = false;
+                    this.MainSwarm = currentSwarmObject;
+                    this.MainSwarm.SwarmObjectScript.ChaseTarget = false;
+                    //this.MainSwarm.SwarmObjectScript.CanCollide = false;
+                }
+            }
+        }
+    }
+    
+    function OnLeftMouseDown(event : ViewportMouseEvent) //spawns child swarm(s)
+    {
+        //get position to aim for:
+        var aim:Real3 = Real3(10, 10, 0);
+        var cursor:Real2 = Zero.Mouse.ScreenPosition;
+        var worldCursor:Real3 = this.LevelSettings.CameraViewport.ScreenToWorldZPlane(cursor, 0);
+        
+        //create child swarm:
+        if(this.MainSwarm.SwarmObjectScript.Size > 0.25)
+        {
+            var size:Real = this.MainSwarm.SwarmObjectScript.Size * 0.25; //spawned swarms are currently 25% of the original
+            this.SpawnSwarm(this.MainSwarm.Transform.Translation, worldCursor, size);
+        }
+    }
+    
+    function SpawnSwarm(position:Real3, target:Real3, size:Real) //creates a new swarm
+    {
+        var newSwarmObject = this.Space.CreateAtPosition(Archetype.SwarmObject, position);
+        
+        //adjust size of main swarm:
+        newSwarmObject.SwarmObjectScript.Size = size;
+        this.MainSwarm.SwarmObjectScript.Size -= size;
+        this.MainSwarm.SwarmObjectScript.SwarmCount -= (size*256) as Integer;
+        
+        //sets up the swarm to go towards the mouse
+        newSwarmObject.SwarmObjectScript.TargetPosition = target;
+        newSwarmObject.SwarmObjectScript.ChaseTarget = true;
+        
+        //misc object stuff
+        newSwarmObject.SwarmObjectScript.CanCollide = false;
+        newSwarmObject.SwarmObjectScript.SwarmCount = (size*256) as Integer;
+        this.SwarmList.Add(newSwarmObject);
+        this.SwarmsCreated += 1;
+        newSwarmObject.SwarmObjectScript.Age = this.SwarmsCreated;
+    }
+    
+    function UpdateMainSwarmMovement(timePassed:Real) //movement control for main swarm
+    {
+        var movement:Real3 = Real3(0, 0, 0); //gets movement direction
+        if(Zero.Keyboard.KeyIsDown(Keys.A))
+        {
+            movement += Real3 (-1, 0, 0);
+        }
+        if(Zero.Keyboard.KeyIsDown(Keys.D))
+        {
+            movement += Real3 (1, 0, 0);
+        }
+        if(Zero.Keyboard.KeyIsDown(Keys.W))
+        {
+            movement += Real3 (0, 1, 0);
+        }
+        if(Zero.Keyboard.KeyIsDown(Keys.S))
+        {
+            movement += Real3 (0, -1, 0);
+        }
+        Math.Normalize(movement); //stops diagonal movement from being faster
+        
+        var densityRatio:Real = (this.MainSwarm.SwarmObjectScript.SwarmDensity / this.MainSwarm.SwarmObjectScript.CurrentDensity);
+        
+       
+        var netForce:Real3 = Real3(0, 0, 0); //applies movement force
+        netForce += movement*this.MoveSpeed*timePassed;
+        netForce -= Math.Normalize(this.MainSwarm.RigidBody.Velocity)*this.Decel*timePassed;
+        this.MainSwarm.RigidBody.ApplyForce(netForce * this.MainSwarm.SwarmObjectScript.Size * 2 * densityRatio); //the 2 is a kinda arbitrary number, might want to turn that into a variable down the line
+    }
+    
+    function Vec2Magnitude(input:Real3):Real //outputs magnitude of a real3's X and Y only, SQUARE of the answer, not the actual answer
+    {
+        //note that this does NOT do the same thing as Math.DistanceSq since it takes a real3 and ignores the Z values
+        return (input.X * input.X) + (input.Y * input.Y);
+    }
+}

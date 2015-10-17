@@ -1,0 +1,60 @@
+/*
+    EnemyPatrolBehavior
+    @James/Argoms
+    
+    Object mindlessly patrols and follows waypoints
+    
+    Beware: This WILL break if the new direction of the waypoint is 0,0,0
+*/
+class EnemyPatrolBehavior : ZilchComponent
+{
+    [Property]
+    var MoveSpeed:Real = 1; //movement speed of the enemy
+    
+    [Property]
+    var Direction:Real3 = Real3(1, 0, 0); //starting direction is defined by the property
+    
+    [Property]
+    var Enabled:Boolean = true; //whether or not the behavior is currently active
+    
+    var PauseTime:Real = 0; //timer for stopping when a patrol point is hit
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this, Events.CollisionStarted, this.OnCollisionStarted);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if(this.Enabled) //only functions if enabled is true, useful for if behavior changes once enemy has aggro etc.
+        {
+            if(this.PauseTime <= 0) //patrols unless the waypoint tells it not to
+            {
+                this.Owner.RigidBody.Velocity = Math.Normalize(this.Owner.Orientation.WorldForward)*this.MoveSpeed;
+            } else { 
+                //stops moving if pause time is in effect, generally happens when a new waypoint is hit
+                this.PauseTime -= event.Dt;
+                this.Owner.RigidBody.Velocity = Real3(0, 0, 0);
+                
+                if(this.Direction != Real3(0, 0, 0))
+                {
+                    //change direction according to waypoint:
+                    this.Owner.Orientation.LookAtPoint(this.Owner.Transform.Translation + this.Direction);
+                } else { //idiot proofing:
+                    Console.WriteLine("don't set patrol point new directions to 0,0,0 or patrolling breaks");
+                }
+            }
+        }
+    }
+    
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        //react to waypoints:
+        if(event.OtherObject.Name == "PatrolWaypoint") 
+        {
+            this.PauseTime = event.OtherObject.PatrolWaypointScript.PauseTime;
+            this.Direction = event.OtherObject.PatrolWaypointScript.NewDirection;
+        }
+    }
+}

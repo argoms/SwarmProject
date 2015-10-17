@@ -1,0 +1,50 @@
+/*
+    EnemyProjectileBehavior
+    @James/Argoms
+    
+    Behavior for enemy projectiles. Remember to set projectile type in the gun behavior.
+*/
+class EnemyProjectileBehavior : ZilchComponent
+{
+    [Property]
+    var Damage:Real = 256;
+    //number of nanobots destroyed by contact with the projectile
+    
+    [Property]
+    var DestroySpeed:Real = 1; //the SQUARE of the speed at which the object will destroy itself
+    //in other words, once the projectile slows down so that its speed squared is less than this speed, it dies
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this, Events.CollisionStarted, this.OnCollisionStarted);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        if(Math.DistanceSq(this.Owner.RigidBody.Velocity, Real3(0, 0, 0)) < this.DestroySpeed) //destroy self if too slow
+        {
+            this.Owner.Destroy();
+        }
+    }
+    
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        if(event.OtherObject.Name == "SwarmObject")
+        {
+            //do damage to swarm on contact:
+            var swarmObject:SwarmObjectScript = event.OtherObject.SwarmObjectScript;
+            swarmObject.SwarmCount -= this.Damage as Integer;
+            
+            //either destroy swarm or shrink it given the swarm's current size
+            if(swarmObject.SwarmCount < 1)
+            {
+                swarmObject.DestroySelf();
+            } else {
+                swarmObject.Size -= this.Damage/256;
+            }
+
+            this.Owner.Destroy();
+        }
+    }
+}

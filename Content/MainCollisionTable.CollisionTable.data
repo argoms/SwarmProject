@@ -1,0 +1,33 @@
+CollisionTable = 
+{
+	Array RegisteredGroups = 
+	[
+		"4e740859314e5515:DefaultGroup",
+		"5646981e42b68ba3:SwarmInteractableGroup",
+		"5646984449f8f235:SwarmGroup",
+	],
+	Array CollisionFilters = 
+	[
+		{
+			string TypeA = "4e740859314e5515:DefaultGroup",
+			string TypeB = "5646981e42b68ba3:SwarmInteractableGroup",
+			bool SkipResolution = false,
+			bool SkipDetectingCollision = false,
+			bool StartEvent = false,
+			bool EndEvent = false,
+			bool PersistedEvent = false,
+			bool PreSolveEvent = false,
+		},
+		{
+			string TypeA = "5646984449f8f235:SwarmGroup",
+			string TypeB = "5646981e42b68ba3:SwarmInteractableGroup",
+			bool SkipResolution = true,
+			bool SkipDetectingCollision = false,
+			bool StartEvent = false,
+			bool EndEvent = false,
+			bool PersistedEvent = false,
+			bool PreSolveEvent = false,
+		},
+	],
+	bool AutoRegister = true,
+},

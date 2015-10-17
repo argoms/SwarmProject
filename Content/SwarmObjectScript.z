@@ -1,0 +1,231 @@
+/*
+    SwarmObjectScript
+    @James/Argoms
+    
+    Attached to individual swarm object cogs
+    
+    notes:
+        the emit rate of particles is based on code, changing it on the archetype won't do anything
+        
+*/
+class SwarmObjectScript : ZilchComponent
+{
+    [Property] //whether or not to draw the circle hitboxes of the swarms
+    var DrawHitboxes:Boolean = false;
+    
+    
+    var IsMain:Boolean = false;
+    var TargetPosition:Real3;
+    var ChaseTarget:Boolean = false;
+    
+    var Size:Real; //size of swarm
+    var SwarmCount:Integer; //number of nanobots
+    var CurrentDensity:Real;
+    var SwarmDensity:Real = 256; //ideal density of nanobots
+    var MaxSwarmDensityRatio:Real = 2; //maximum ratio of current to swarm density
+    var MinSwarmDensityRatio:Real = 0.5; //minimum ratio of current to swarm density
+    
+    var MoveSpeed:Integer = 50;
+    var Decel:Integer = 100;
+    
+    var CanCollide:Boolean = false; //used to stop swarms instantly consuming their children
+    
+    var Age:Integer; //used to stop annihilation when two swarms touch each other
+    
+    var DT:Real; //delta time, referenced in collisions
+    var Colliding:Boolean = false; //whether or not something is currently colliding with the swarm
+    
+    var LastMovementVector:Real3;
+    
+    var ChaseSpeed:Real = 2; //how quickly the object reaches target points
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        Zero.Connect(this, Events.CollisionStarted, this.OnCollisionStarted);
+        Zero.Connect(this, Events.CollisionEnded, this.OnCollisionEnded);
+        Zero.Connect(this, Events.CollisionPersisted, this.WhileCollisionPersists);
+        this.CurrentDensity = 256;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        var densityRatio:Real = this.GetSwarmDensity(); //saves the value so I don't have to repeatedly call it
+        var currentScale:Real = Math.Sqrt(this.Size)*densityRatio; //same as above
+        
+        //scales swarm according to size:
+        this.Owner.SphericalParticleEmitter.EmitRate = this.SwarmCount;
+        this.Owner.Transform.Scale = Real3(currentScale, currentScale, 1);
+        this.Owner.MassOverride.Mass = 0.52*densityRatio*this.Size; //adjusts the mass of the swarm object since density is variable
+        
+        //dt used for some other functions that can't call the event dt
+        this.DT = event.Dt;
+        
+        if(densityRatio < 1) //expands the swarm if it's bunched up
+        {
+            this.CurrentDensity -= Math.Round(event.Dt*350);
+        }
+        
+        
+        //target behavior for newly spawned swarms
+        if(this.ChaseTarget)
+        {
+            this.GoTowardsTarget(event.Dt);
+        }
+        
+        //highlight main swarm in red, others in gray if this is true:
+        this.SwarmHighlights(this.DrawHitboxes);
+    }
+    
+    function OnCollisionStarted(event : CollisionEvent)
+    {
+        this.Colliding = true; //used by other functions to see if the swarm is currently on something
+        
+        //merges swarms that collide:
+        if(this.CanCollide && event.OtherObject.Name == "SwarmObject")
+        {
+            if(this.IsMain || (this.Age < event.OtherObject.SwarmObjectScript.Age && !event.OtherObject.SwarmObjectScript.IsMain)) //bias towards the main swarm
+            {
+                if(event.OtherObject.SwarmObjectScript.CanCollide)
+                {
+                    this.Size += event.OtherObject.SwarmObjectScript.Size;
+                    this.SwarmCount += event.OtherObject.SwarmObjectScript.SwarmCount;
+                    this.LevelSettings.SwarmControllerScript.SwarmList.RemoveFirst(event.OtherObject);
+                    event.OtherObject.Destroy();
+                }
+            }
+        }
+        
+    }
+    
+    function WhileCollisionPersists(event : CollisionEvent)
+    {
+        //shrinks the swarm to fit through small spaces:
+        if(!(event.OtherObject.Name == "SwarmObject")) //assuming that the object it's colliding with isn't another swarm
+        {
+            if(this.GetSwarmDensity() > this.MinSwarmDensityRatio) //and that the swarm isn't already at minimum size
+            {
+                if(this.CheckIfSqueezing() != event.OtherObject) //and that it's actually squeezing through a path and not just rubbing against a wall
+                {
+                    this.CurrentDensity += Math.Round(this.DT*3000); //adjust swarm density (and therefore effective size)
+                }
+            }
+            if(event.OtherObject.ConsumableObjectScript != null) //if the other object can be consumed, the swarm starts doing so
+            {
+                event.OtherObject.ConsumableObjectScript.TakeDamage(this, this.DT);
+            }
+        }
+        if(event.OtherObject.Chaseable != null && (!this.IsMain))
+        {
+            this.TargetPosition = event.OtherObject.Transform.Translation;
+            this.ChaseTarget = true;
+            this.ChaseSpeed = 32;
+        } else {
+            if(this.CanCollide)
+            {
+                //this.ChaseTarget = false;
+            }
+        }
+    }
+    
+    function OnCollisionEnded(event : CollisionEvent)
+    {
+        this.Colliding = false;
+        if(event.OtherObject.Name == "SwarmObject") //this stops a swarm from instantly consuming the child it creates when you click
+        {
+            if(event.OtherObject.SwarmObjectScript.IsMain)
+            {
+                this.CanCollide = true;
+            }
+        }
+    }
+    
+    
+    function GoTowardsTarget(timePassed:Real) //guess what this does.
+    {
+        var movement:Real3 = this.TargetPosition - this.Owner.Transform.Translation;
+        Math.Normalize(movement); 
+        this.Owner.RigidBody.Velocity = movement * this.ChaseSpeed;
+    }
+    
+    function Vec2Magnitude(input:Real3):Real //outputs magnitude of a value's X and Y only, SQUARE of the answer, not the actual answer
+    {
+        return (input.X * input.X) + (input.Y * input.Y);
+    }
+    
+    function SwarmHighlights(input:Boolean) //highlights swarm collision boxes if true, more useful than debugdraw since you can see which swarm is active
+    {
+        if(input)
+        {
+            if(this.IsMain)
+            {
+                this.Owner.Sprite.Color = Real4(1,0,0, 0.1);
+            } else {
+                this.Owner.Sprite.Color = Real4(0.5,0.5,0.5, 0.1);
+            }
+        } else {
+            this.Owner.Sprite.Color = Real4(0.5,0.5,0.5, 0.0);
+        }
+    }
+    
+    function GetSwarmDensity():Real //returns swarm density
+    {
+        return (this.SwarmDensity / this.CurrentDensity);
+    }
+    
+    function CheckIfSqueezing():Cog //part of checking if the current path of the (generally main) swarm involves squeezing through a tunnel smaller than itself
+    {
+        
+        //gets player input movement vector:
+        var movement:Real3 = Real3(0, 0, 0); 
+        var keysBeingPressed:Boolean = false; //used to check if the player is actually pressing movement keys
+        if(Zero.Keyboard.KeyIsDown(Keys.A))
+        {
+            movement += Real3 (-1, 0, 0);
+            keysBeingPressed = true;
+        }
+        if(Zero.Keyboard.KeyIsDown(Keys.D))
+        {
+            movement += Real3 (1, 0, 0);
+            keysBeingPressed = true;
+        }
+            if(Zero.Keyboard.KeyIsDown(Keys.W))
+        {
+            movement += Real3 (0, 1, 0);
+            keysBeingPressed = true;
+        }
+        if(Zero.Keyboard.KeyIsDown(Keys.S))
+        {
+            movement += Real3 (0, -1, 0);
+            keysBeingPressed = true;
+        }
+
+        Math.Normalize(movement);
+        
+        if(keysBeingPressed) //if keys are being pressed, last movement vector is used
+        {
+            this.LastMovementVector = movement;
+        }
+        
+        //check what the closest object in the direction that the player is moving is
+        var ray:Ray = Ray();
+
+        var thisPosition:Real3 = this.Owner.Transform.Translation;
+        var rayDirection:Real3 = this.LastMovementVector;
+
+        ray.Start = thisPosition;
+        ray.Direction = rayDirection;
+
+        var castResult:CastResult = this.Space.PhysicsSpace.CastRayFirst(ray);
+        var hit:Cog = castResult.ObjectHit;
+        //side note: why doesn't the website declare their variable types?
+        
+        return hit;
+    }
+    
+    function DestroySelf() //called when enemy projectiles do enough damage to kill a swarm object
+    {
+        this.LevelSettings.SwarmControllerScript.SwarmList.RemoveFirst(this.Owner);
+        this.Owner.Destroy();
+    }
+}

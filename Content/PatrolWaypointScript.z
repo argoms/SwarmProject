@@ -1,0 +1,20 @@
+/*
+    PatrolWaypointScript
+    @James/Argoms
+    
+    Attached to patrol waypoints to let enemies take complex paths without hard coding or worrying about pathfinding. 
+    Mostly for info storage atm.
+*/
+class PatrolWaypointScript : ZilchComponent
+{
+    [Property]
+    var PauseTime:Real = 0;
+    
+    [Property]
+    var NewDirection:Real3 = Real3(0, 1, 0);
+    
+    function Initialize(init : CogInitializer)
+    {
+        //Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+}
