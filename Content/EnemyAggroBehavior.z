@@ -27,6 +27,8 @@ class EnemyAggroBehavior : ZilchComponent
     var Target:Cog = null;
     
     var Gun:Cog = null;
+    
+    var OldDirection:Real3; //direction the enemy was facing before they got aggro'd
     /*
         on alert levels:
         alert 0 = fine
@@ -70,6 +72,7 @@ class EnemyAggroBehavior : ZilchComponent
                 if(this.Owner.EnemyPatrolBehavior != null) //re-enables patrolling if that's part of the enemy
                 {
                     this.Owner.EnemyPatrolBehavior.Enabled = true;
+                    this.Owner.Orientation.LookAtDirection (this.OldDirection);
                 }
             }
         }
@@ -98,6 +101,10 @@ class EnemyAggroBehavior : ZilchComponent
             this.AlertCounter = this.CalmdownTimer;
             this.Target = hit; //set target to current swarm
             this.RespondToSwarm(hit);
+            if(this.Alert != 2)
+            {
+                this.OldDirection = this.Owner.Orientation.WorldForward;
+            }
         } else {
             if(this.Alert == 2)
             {
