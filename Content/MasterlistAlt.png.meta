@@ -1,0 +1,27 @@
+ImageContent = 
+{
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"SwarmTiles",
+		],
+	},
+	SpriteSourceBuilder = 
+	{
+		string Name = "MasterlistAlt",
+		uint64 ResourceId = 56fbcdf141c12f6a,
+		uint64 AtlasId = 5274cf95e4a661fd,
+		uint FrameSizeX = 560,
+		uint FrameSizeY = 224,
+		uint FrameCount = 1,
+		float FrameDelay = 0.0833333358,
+		float OriginX = 280,
+		float OriginY = 112,
+		float PixelsPerUnit = 28,
+		bool Smoothing = true,
+		bool Looping = true,
+		Vec4 Slices = [0, 0, 0, 0],
+		SpriteFill Fill = Stretch,
+	},
+},

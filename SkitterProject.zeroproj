@@ -7,7 +7,7 @@ Cog =
 		string DefaultLevel = "Level",
 		string ProjectSpace = "Space",
 		string ProjectFolder = "C:\DigiPen\Gam100\SwarmProject",
-		uint ProjectEngineRevision = 12385,
+		uint ProjectEngineRevision = 12494,
 		bool AutoTakeProjectScreenshot = true,
 	},
 	EditorSettings = 

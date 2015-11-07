@@ -91,24 +91,29 @@ class EnemyAggroBehavior : ZilchComponent
 
         var castResult:CastResult = this.Space.PhysicsSpace.CastRayFirst(ray);
         var hit:Cog = castResult.ObjectHit; 
-        //distance to target, squared to avoid sqrt usage later:
-        var targetDistance:Real = Math.DistanceSq(this.Owner.Transform.Translation, hit.Transform.Translation); 
         
-        if(hit.Name == "SwarmObject" && (targetDistance < this.ViewDistance * this.ViewDistance))
+        //stops the game from breaking if the hit box is on a tile
+        if(hit != null)
         {
-            //behavior if a swarm is spotted
-            this.Alert = 2; //go to high alert
-            this.AlertCounter = this.CalmdownTimer;
-            this.Target = hit; //set target to current swarm
-            this.RespondToSwarm(hit);
-            if(this.Alert != 2)
+            //distance to target, squared to avoid sqrt usage later:
+            var targetDistance:Real = Math.DistanceSq(this.Owner.Transform.Translation, hit.Transform.Translation); 
+            
+            if(hit.Name == "SwarmObject" && (targetDistance < this.ViewDistance * this.ViewDistance))
             {
-                this.OldDirection = this.Owner.Orientation.WorldForward;
-            }
-        } else {
-            if(this.Alert == 2)
-            {
-                this.Alert = 1; //goes into suspicious mode if swarm is no longer visible
+                //behavior if a swarm is spotted
+                this.Alert = 2; //go to high alert
+                this.AlertCounter = this.CalmdownTimer;
+                this.Target = hit; //set target to current swarm
+                this.RespondToSwarm(hit);
+                if(this.Alert != 2)
+                {
+                    this.OldDirection = this.Owner.Orientation.WorldForward;
+                }
+            } else {
+                if(this.Alert == 2)
+                {
+                    this.Alert = 1; //goes into suspicious mode if swarm is no longer visible
+                }
             }
         }
     }
