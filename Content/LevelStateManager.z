@@ -1,0 +1,43 @@
+class LevelStateManager : ZilchComponent
+{
+    //Get the player's information
+    var Player : Cog = null;
+    
+    //The time left to play the game
+    [Property]
+    var TimeLeft : Real = 60.0;
+    
+    //The lose screen to move player to if time runs out
+    [Property]
+    var LoseScreen : Level = null;
+    
+    //If the key has been obtained
+    var KeyInPossession : Boolean = false;
+    
+    //Level settings must have an HUD interaction component
+    [Dependency]
+    var HudInteraction : HudInteraction;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        
+        //get the player
+        this.Player = this.Space.FindObjectByName("Player");
+        
+        
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        //Timer related stuff
+        this.TimeLeft -= event.Dt;
+        
+        if(this.TimeLeft < 0.0)
+        {
+            this.Space.LoadLevel(this.LoseScreen);
+        }
+        
+        
+    }
+}

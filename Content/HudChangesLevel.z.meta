@@ -1,0 +1,15 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "HudChangesLevel",
+		uint64 ResourceId = 56be8e9e0ed76984,
+	},
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"HUD",
+		],
+	},
+},

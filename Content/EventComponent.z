@@ -1,0 +1,13 @@
+//Matt Chasengnou
+//
+//class :       EventComponent
+//description : The base class that all event components inherit from.
+//
+//NOTES :       These events have to be activated from other scripts.
+class EventComponent : ZilchComponent
+{
+    
+    [Property]
+    var TypeOfEvent : EventType;
+    
+}

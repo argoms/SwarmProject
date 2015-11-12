@@ -1,0 +1,66 @@
+//Matt Chasengnou
+//
+//class :       EventTrigger
+//description : Allows this object to activate an event when collided with
+//
+//NOTES:        If the event is on another object, put an ObjectLink on this
+//              object and connect that object to the ObjectA field
+class EventTrigger : ZilchComponent
+{
+    //Requires a collider to detect collision events
+    [Dependency]
+    var Collider : Collider;
+    
+    //The collision group that this switch will respond to
+    [Property]
+    var TargetCollisionGroup : CollisionGroup;
+    
+    //Should the trigger only be activated once?
+    [Property]
+    var OneShot : Boolean = true;
+    
+    //Indicates if the trigger has been activated at least once
+    var Triggered : Boolean = false;
+    
+    //Indicates whether the event is on the same object as the trigger
+    var EventIsSelf : Boolean;
+    
+    function Initialize(init : CogInitializer)
+    {
+        
+        //connect collision events from this object.
+        //Zero.Connect(this.Owner, Events.CollisionStarted, this.OnCollisionStarted);
+        
+        //Check if the event is on this object or if it is linked to another object.
+        this.EventIsSelf = this.Owner.EventHandlerMine != null;
+    }
+    
+    //Collision code
+    //function OnCollisionStarted(event : CollisionEvent)
+    //{
+    //    var otherObject = event.OtherObject;
+        
+    //    If the other object is in our target collision group, activate the event.
+    //    if (otherObject.Collider.CollisionGroup.Name == this.TargetCollisionGroup.Name)
+    //    {
+    //        If the trigger is repeatable or has not yet been triggered,
+    //        then activate the event.
+    //        if ( !(this.OneShot && this.Triggered) )
+    //        {
+    //            Activating the event when on this object
+    //            if (this.EventIsSelf) this.Owner.ScriptEvent.Activate();
+                
+    //            Activating the event when on different object
+    //            else this.Owner.ObjectLink.ObjectA.ScriptEvent.Activate();
+    //        }
+    //    }
+    //}
+    
+    function Activate()
+    {
+        //Activating the event if on self
+        if (this.EventIsSelf) this.Owner.EventHandlerMine.Activate();
+        //Activating the event when on different object
+        else this.Owner.ObjectLink.ObjectA.EventHandlerMine.Activate();
+    }
+}

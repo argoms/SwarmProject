@@ -1,0 +1,32 @@
+//Matt Chasengnou
+//
+//class       : ParticleColorChanger
+//description : Causes the particle system to change colors
+
+class ParticleColorChanger : ZilchComponent
+{
+    //To generate random color values
+    var RNG : Random = Random();
+    
+    //The particle system to affect
+    [Dependency]
+    var SpriteParticleSystem : SpriteParticleSystem;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        //Generate the color information
+        var color = Real4.WAxis;  //Initialize RGB to zero, Alpha to 1
+        
+        color.X = this.RNG.Range(0, 0.5);
+        color.Y = this.RNG.Range(0.5, 1);
+        color.Z = this.RNG.Range(0.75, 1);
+        
+        //Change the color of the particle system
+        this.SpriteParticleSystem.Tint = color;
+    }
+}

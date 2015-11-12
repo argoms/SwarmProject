@@ -1,0 +1,15 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "LevelStateManager",
+		uint64 ResourceId = 56be89632675e11a,
+	},
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"HUD",
+		],
+	},
+},

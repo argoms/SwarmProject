@@ -1,0 +1,45 @@
+//Matt Chasengnou
+//
+//class :       Event_RemoveObstacle
+//description : Adds an event to open a door
+//
+//NOTES :       The door that is opened will disappear
+class Event_RemoveObstacle : EventComponent
+{
+    //Requires a collider to deactivate/remove
+    [Dependency]
+    var Collider : Collider;
+    
+    //Assumes that the door has a sprite to represent it
+    [Dependency]
+    var Sprite : Sprite;
+    
+    //Number of switches required to make event happen
+    [Property]
+    var SwitchesRequired : Integer = 1;
+    
+    function Initialize(init : CogInitializer)
+    {
+        //Initialize the type of this event.
+        this.TypeOfEvent = EventType.OB_REMOVE;
+    }
+    
+    //Updates this event and activates when all switches are pressed
+    function Activate()
+    {
+        //Indicates that a switch was pressed
+        this.SwitchesRequired -= 1;
+        
+        //If all switches have been pressed, remove the obstacle
+        if(this.SwitchesRequired <= 0)
+        {
+            //Disable the collider and make the object invisible
+            this.Collider.Ghost = true;
+            this.Collider.SendsEvents = false;
+            this.Sprite.Visible = false;
+            
+            //Make a door-opened message appear
+            this.LevelSettings.HudInteraction.SetMessageVisible();
+        }
+    }
+}

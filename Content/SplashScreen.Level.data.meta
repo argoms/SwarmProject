@@ -1,0 +1,19 @@
+DataContent = 
+{
+	DataBuilder = 
+	{
+		string Name = "SplashScreen",
+		uint64 ResourceId = 56bf20e3947f724b,
+		string LoaderType = "Level",
+		uint Version = 0,
+		bool ShowInEditor = true,
+	},
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"SplashScreen",
+			"HUD",
+		],
+	},
+},

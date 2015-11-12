@@ -1,0 +1,9 @@
+//Matt Chasengnou
+//
+//file : EventScriptDefinitions
+//description : Contains global definitions (NOT VARIABLES) used by my custom event scripts
+
+
+//enum :        EventType
+//description : Indicates what type of event this is
+enum EventType{OB_REMOVE, TRAP, SPAWN}

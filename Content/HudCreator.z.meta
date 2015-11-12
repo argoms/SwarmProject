@@ -1,0 +1,15 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "HudCreator",
+		uint64 ResourceId = 56be8f6ac9c91cae,
+	},
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"HUD",
+		],
+	},
+},

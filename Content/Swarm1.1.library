@@ -1,0 +1,7 @@
+ContentLibrary = 
+{
+	string Name = "Swarm1.1",
+	uint64 LibraryId = 56b4bef7a9fce36c,
+	string SourceControlType = "",
+	bool ReadOnly = false,
+},

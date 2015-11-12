@@ -1,0 +1,103 @@
+class HudInteraction : ZilchComponent
+{
+    //Modification of the hud implementation provided in the lesson
+    
+    //The player so that we can get the player information
+    var Player : Cog = null;
+    
+    //The level manager
+    //var LevelManager : LevelStateManager = null;
+    
+    //Message to turn on when unlocking doors
+    var DoorMessage : SpriteText;
+    
+    //Background for message to appear on
+    var MessageBack : Sprite;
+    
+    //Indicates if the message is being displayed
+    var MessageOn : Boolean = false;
+    
+    //How long the message should be displayed
+    [Property]
+    var MessTime : Real = 3;
+    
+    //Timer for message
+    var MClock : Real = 0;
+    
+    // Making this dependency explicit ensure the HudCreator's Initialize function is
+    // called before HudInteraction's Initialize function.
+    [Dependency]
+    var HudCreator: HudCreator;
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+        
+        //Get the message sprite on the hud
+        this.DoorMessage = this.Owner.HudCreator.HudSpace.FindObjectByName("HudDoorMess").SpriteText;
+        
+        //Get the background of the message
+        this.MessageBack = this.Owner.HudCreator.HudSpace.FindObjectByName("Background").Sprite;
+        
+        //Get the Level state manager info
+        //this.LevelManager = this.Space.LevelSettings.LevelStateManager;
+        
+        //Get the player info
+        //this.Player = this.Space.FindObjectByName("Player");
+        
+        //Initially set messages to invisible
+        var color = this.DoorMessage.Color;
+        color.W = 0;
+        this.DoorMessage.Color = color;
+        
+        color = this.MessageBack.Color;
+        color.W = 0;
+        this.MessageBack.Color = color;
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        //Message display stuff
+        
+        var messColor = this.DoorMessage.Color;
+        
+        var backColor = this.MessageBack.Color;
+        
+        //Stuff to do if displaying message
+        if (this.MessageOn)
+        {
+            
+            this.MClock += event.Dt;
+            
+            //If message isn't visible, add more to its alpha to make it opaque
+            if (this.DoorMessage.Color.W < 1) messColor.W += event.Dt;
+            
+            //If the back isn't dark enough, darken it some more
+            if (this.MessageBack.Color.W < 0.5) backColor.W += event.Dt;
+            
+            //If we are out of time, turn off the message
+            if (this.MClock >= this.MessTime)
+            {
+                this.MessageOn = false;
+                this.MClock = 0;
+            }
+        }
+        //Stuff to do when turning off the message
+        else
+        {
+            //If message is still visible, decrease visibility
+            if (this.DoorMessage.Color.W > 0) messColor.W -= event.Dt;
+            
+            //If the back is still visible, decrease visibility
+            if (this.MessageBack.Color.W > 0) backColor.W -= event.Dt;
+        }
+        
+        this.DoorMessage.Color = messColor;
+        this.MessageBack.Color = backColor;
+    }
+    
+    //Turns on the message
+    function SetMessageVisible()
+    {
+        this.MessageOn = true;
+    }
+}

@@ -1,0 +1,11 @@
+class HudChangesLevel : ZilchComponent
+{
+    function Initialize(init : CogInitializer)
+    {
+         // Since we don't already have access to the Space we have to find it.
+         // The default name for the Space a Level is loaded into is called Main
+         var gameSpace = this.GameSession.FindSpaceByName("Main");
+         // Here we can quickly show we can affect the game by changing the background color:
+         gameSpace.LevelSettings.ForwardRenderer.ClearColor = Real4(0.0, 1.0, 0.0, 1.0);
+    }
+}

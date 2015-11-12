@@ -27,6 +27,9 @@ class ConsumableObjectScript : ZilchComponent
             swarmObject.Size += this.SwarmCreated/256;
             swarmObject.SwarmCount += this.SwarmCreated as Integer;
             this.Owner.Destroy();
+            
+            //If an event trigger is attached, activate it
+            if (this.Owner.EventTrigger != null) this.Owner.EventTrigger.Activate();
         }
     }
 }

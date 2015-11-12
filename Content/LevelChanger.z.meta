@@ -1,0 +1,16 @@
+TextContent = 
+{
+	ZilchScriptBuilder = 
+	{
+		string Name = "LevelChanger",
+		uint64 ResourceId = 55d8e6da4959f0ff,
+	},
+	ContentTags = 
+	{
+		Array Tags = 
+		[
+			"SplashScreen",
+			"HUD",
+		],
+	},
+},

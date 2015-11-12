@@ -1,0 +1,28 @@
+Cog = 
+{
+	Project = 
+	{
+		string ProjectName = "Swarm1.1",
+		string ProjectOwner = "",
+		string DefaultLevel = "Level",
+		string ProjectSpace = "Space",
+		string ProjectFolder = "C:\Users\Armed_Watcher\DigiPen_GAMES\GAM100\SWARM\Swarm\SwarmProject-1a46794642e5da6e767ea5ccd31621259134c3f9",
+		uint ProjectEngineRevision = 12494,
+		bool AutoTakeProjectScreenshot = true,
+	},
+	EditorSettings = 
+	{
+		EditorMode EditorMode = Mode2D,
+		bool ViewCube = true,
+		float ViewCubeViewportSize = 150,
+		ScriptReloadMethod ScriptReloadEditor = ReInitializeObjects,
+		ScriptReloadMethod ScriptReloadGame = PatchObjects,
+		bool AutoUpdateContentChanges = true,
+	},
+	ProjectDescription = 
+	{
+		string ShortDescription = "",
+		string LongDescription = "",
+		string Tags = "",
+	},
+},

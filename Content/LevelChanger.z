@@ -1,0 +1,28 @@
+//Matt Chasengnou
+
+class LevelChanger : ZilchComponent
+{
+    //Allows switching to another level
+    
+    //Button to press to change level
+    [Property]
+    var LevelKey : Keys = Keys.Space;
+    
+    //Level to load on press
+    [Property]
+    var TargetLevel : Level = null;
+    
+    function Initialize(init : CogInitializer)
+    {
+        Zero.Connect(this.Space, Events.LogicUpdate, this.OnLogicUpdate);
+    }
+
+    function OnLogicUpdate(event : UpdateEvent)
+    {
+        //If the key is pressed, load the level
+        if(Zero.Keyboard.KeyIsPressed(this.LevelKey))
+        {
+            this.Space.LoadLevel(this.TargetLevel);
+        }
+    }
+}

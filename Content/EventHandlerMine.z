@@ -1,0 +1,21 @@
+//Matt Chasengnou
+//
+//class :       EventHandlerMine
+//description : This is a handler for the event attached to this object.
+//
+//NOTES         The event has to be activated through the ScriptTrigger.
+//              The event to use must also be attached to this object.
+//              If this event wrapper is not on the same object as the ScriptTrigger component,
+//              don't destroy this object or bad things will happen.
+class EventHandlerMine : ZilchComponent
+{
+    function Activate()
+    {
+        //If Zero supported virtual/abstract classes, I could do all of this in one call:
+        //    EventComponent.Activate(); //given that EventComponent is the base of all event classes
+        //                               //and Activate() is overriden by each child class.
+        //But we don't have that functionality, so we'll have to check through each and every
+        //event that we have by hand :P
+        if (this.Owner.Event_RemoveObstacle != null) this.Owner.Event_RemoveObstacle.Activate();
+    }
+}
