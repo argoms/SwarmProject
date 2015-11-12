@@ -14,8 +14,8 @@ Cog =
 	},
 	Transform = 
 	{
-		Vec3 Translation = [0, 0, 0],
-		Vec3 Scale = [1, 1, 1],
+		Vec3 Translation = [0, 0, 0.200000003],
+		Vec3 Scale = [2, 2, 2],
 		Quat Rotation = [0, 0, 0, 1],
 	},
 	Sprite = 
@@ -65,7 +65,7 @@ Cog =
 		bool Asleep = false,
 		bool Kinematic = false,
 		bool RotationLocked = false,
-		bool Mode2D = false,
+		bool Mode2D = true,
 		bool AllowSleep = true,
 		bool Inherit2DMode = true,
 		Vec3 Velocity = [0, 0, 0],
@@ -133,7 +133,7 @@ Cog =
 			},
 			Transform = 
 			{
-				Vec3 Translation = [0.25899756, -0.227135003, -0.0826068893],
+				Vec3 Translation = [0.25899756, -0.227135003, 0],
 				Vec3 Scale = [1, 0.200000003, 1],
 				Quat Rotation = [0, 0, 0, 1],
 			},

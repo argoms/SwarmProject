@@ -122,7 +122,7 @@ class EnemyAggroBehavior : ZilchComponent
     {
         if(this.ResponseToSpotting == 1)
         {
-            if(this.Target != null) //only works if the target still exists
+            if(this.Target != null && this.Gun != null) //only works if the target still exists
             {
                 this.Gun.EnemyGunBehavior.Target = target;
                 this.Gun.EnemyGunBehavior.Active = true;

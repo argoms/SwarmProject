@@ -48,7 +48,7 @@ Cog =
 	},
 	ConsumableObjectScript = 
 	{
-		float Life = 5,
+		float Life = 0.25,
 		float SwarmCreated = 0,
 	},
 },

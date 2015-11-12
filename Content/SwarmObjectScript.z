@@ -11,7 +11,7 @@
 class SwarmObjectScript : ZilchComponent
 {
     [Property] //whether or not to draw the circle hitboxes of the swarms
-    var DrawHitboxes:Boolean = false;
+    var DrawHitboxes:Boolean = true;
     
     
     var IsMain:Boolean = false;
@@ -25,8 +25,8 @@ class SwarmObjectScript : ZilchComponent
     var MaxSwarmDensityRatio:Real = 2; //maximum ratio of current to swarm density
     var MinSwarmDensityRatio:Real = 0.5; //minimum ratio of current to swarm density
     
-    var MoveSpeed:Integer = 50;
-    var Decel:Integer = 100;
+    var MoveSpeed:Integer = 100;
+    var Decel:Integer = 50;
     
     var CanCollide:Boolean = false; //used to stop swarms instantly consuming their children
     
@@ -74,7 +74,8 @@ class SwarmObjectScript : ZilchComponent
         }
         
         //highlight main swarm in red, others in gray if this is true:
-        this.SwarmHighlights(this.DrawHitboxes);
+        //this.SwarmHighlights(this.DrawHitboxes);
+        //this.Owner.SphereCollider.DebugDraw();
     }
     
     function OnCollisionStarted(event : CollisionEvent)
@@ -100,8 +101,9 @@ class SwarmObjectScript : ZilchComponent
     
     function WhileCollisionPersists(event : CollisionEvent)
     {
+        
         //shrinks the swarm to fit through small spaces:
-        if(!(event.OtherObject.Name == "SwarmObject")) //assuming that the object it's colliding with isn't another swarm
+        if(!(event.OtherObject.Name == "SwarmObject"))// || true)//event.OtherObject == null) //assuming that the object it's colliding with isn't another swarm
         {
             if(this.GetSwarmDensity() > this.MinSwarmDensityRatio) //and that the swarm isn't already at minimum size
             {
@@ -189,7 +191,7 @@ class SwarmObjectScript : ZilchComponent
             movement += Real3 (1, 0, 0);
             keysBeingPressed = true;
         }
-            if(Zero.Keyboard.KeyIsDown(Keys.W))
+        if(Zero.Keyboard.KeyIsDown(Keys.W))
         {
             movement += Real3 (0, 1, 0);
             keysBeingPressed = true;

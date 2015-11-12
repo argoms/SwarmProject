@@ -43,6 +43,6 @@ class EnemyGunBehavior : ZilchComponent
     {
         this.Owner.Parent.Orientation.LookAtPoint(this.Target.Transform.Translation);
         var projectile:Cog = this.Owner.Parent.Space.CreateAtPosition(this.ProjectileType, this.Owner.Parent.Transform.Translation);
-        projectile.RigidBody.Velocity = 5*this.Owner.Parent.Orientation.WorldForward;
+        projectile.RigidBody.Velocity = 32*this.Owner.Parent.Orientation.WorldForward;
     }
 }

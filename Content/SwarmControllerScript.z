@@ -16,8 +16,8 @@ class SwarmControllerScript : ZilchComponent
     
     var SwarmList:Array[Cog] = new Array[Cog](); //list of all swarm objects currently existing
     
-    var MoveSpeed:Integer = 150; //main swarm's move speed, measured in force, not linearly scaling to actual speed
-    var Decel:Integer = 100; //how fast main swarm decelerates, affects effective moving speed
+    var MoveSpeed:Integer = 300; //main swarm's move speed, measured in force, not linearly scaling to actual speed
+    var Decel:Integer = 200; //how fast main swarm decelerates, affects effective moving speed
     
     var SwarmsCreated:Integer = 0; //total number of swarms created
     
@@ -32,7 +32,7 @@ class SwarmControllerScript : ZilchComponent
         Zero.Connect(this.Space, Events.RightMouseDown, this.OnRightMouseDown);
         
         //set up initial swarm object:
-        this.MainSwarm = this.Space.CreateAtPosition(Archetype.SwarmObject, Real3(0,0,0));
+        this.MainSwarm = this.Space.CreateAtPosition(Archetype.SwarmObject, Real3(-10,-30,0));
         this.MainSwarm.SwarmObjectScript.IsMain = true;
         this.MainSwarm.SwarmObjectScript.Age = 0;
         this.MainSwarm.SwarmObjectScript.CanCollide = true;
@@ -50,8 +50,13 @@ class SwarmControllerScript : ZilchComponent
     {
         if(this.MainSwarm == null)
         {
-            this.MainSwarm = this.SwarmList[0];
-            this.MainSwarm.SwarmObjectScript.ChaseTarget = false;
+            if(this.SwarmList.Count != 0)
+            {
+                this.MainSwarm = this.SwarmList[0];
+                this.MainSwarm.SwarmObjectScript.ChaseTarget = false;
+            } else {
+                Console.WriteLine("gameover");
+            }
         }
         
         this.UpdateMainSwarmMovement(event.Dt);
@@ -100,7 +105,7 @@ class SwarmControllerScript : ZilchComponent
         //create child swarm:
         if(this.MainSwarm.SwarmObjectScript.Size > 0.25)
         {
-            var size:Real = this.MainSwarm.SwarmObjectScript.Size * 0.25; //spawned swarms are currently 25% of the original
+            var size:Real = this.MainSwarm.SwarmObjectScript.Size * 0.4; //spawned swarms are currently 25% of the original
             this.SpawnSwarm(this.MainSwarm.Transform.Translation, worldCursor, size);
         }
     }
