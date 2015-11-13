@@ -14,7 +14,7 @@ Cog =
 	},
 	Transform = 
 	{
-		Vec3 Translation = [0, 0, 0.200000003],
+		Vec3 Translation = [0, 0, 0],
 		Vec3 Scale = [2, 2, 2],
 		Quat Rotation = [0, 0, 0, 1],
 	},
@@ -172,7 +172,7 @@ Cog =
 			},
 			EnemyGunBehavior = 
 			{
-				float FireRate = 0.5,
+				float FireRate = 0.100000001,
 				string ProjectileType = "5647b8fba4767fd0:EnemyProjectile",
 			},
 		},

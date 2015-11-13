@@ -33,6 +33,12 @@ class EnemyGunBehavior : ZilchComponent
                 {
                     this.ShootAtTarget();
                 }
+            } else
+            {
+                if(this.Target != null)
+                {
+                    this.Owner.Parent.Orientation.LookAtPoint(this.Target.Transform.Translation);
+                }
             }
             
             

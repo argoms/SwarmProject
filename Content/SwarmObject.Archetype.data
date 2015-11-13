@@ -71,7 +71,7 @@ Cog =
 	},
 	Sprite = 
 	{
-		bool Visible = true,
+		bool Visible = false,
 		bool VisibilityCulling = true,
 		bool VisibilityEvents = true,
 		bool CastShadows = false,
@@ -101,7 +101,7 @@ Cog =
 	},
 	SwarmObjectScript = 
 	{
-		bool DrawHitboxes = true,
+		bool DrawHitboxes = false,
 	},
 	SphereCollider = 
 	{
@@ -128,9 +128,6 @@ Cog =
 		Vec3 UpVector = [0, 1, 0],
 		Vec3 ForwardVector = [0, 0, 1],
 		OrientationBases DefaultBases = ForwardZUpY,
-	},
-	ParticleColorChanger = 
-	{
 	},
 	CustomCollisionEventTracker = 
 	{
